@@ -29,10 +29,10 @@ int main(void)
             }
         }
 
-        // Check if the last character is a newline
+        /*Check if the last character is a newline*/
         if (num_chars > 0 && buf[num_chars - 1] == '\n')
         {
-            // Replace the newline character with null terminator
+            /*Replace the newline character with null terminator*/
             buf[num_chars - 1] = '\0';
         }
 
