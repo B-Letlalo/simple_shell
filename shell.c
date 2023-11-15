@@ -56,7 +56,7 @@ int main(void)
         if (child_pid == 0)
         {
             if (execve(tokens[0], tokens, environ) == -1)
-                perror("./shell ");
+                perror("./hsh");
         }
         else
         {
