@@ -4,11 +4,11 @@
 #include <unistd.h>
 
 /**
- * main - stat example
+ * _which - stat example
  *
  * Return: Always 0.
  */
-int main(int ac, char **av)
+int _which(int ac, char **av)
 {
     unsigned int i;
     struct stat st;
@@ -18,6 +18,7 @@ int main(int ac, char **av)
         printf("Usage: %s path_to_file ...\n", av[0]);
         return (1);
     }
+
     i = 1;
     while (av[i])
     {
