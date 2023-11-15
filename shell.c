@@ -1,4 +1,5 @@
-#include "main.h"
+#include "shell.h"
+
 
 int main(void)
 {
@@ -19,7 +20,7 @@ int main(void)
         {
             if (feof(stdin))
             {
-                printf("Shell exiting...\n");
+                _puts("Shell exiting...\n");
                 break;
             }
             else
