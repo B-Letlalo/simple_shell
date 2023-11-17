@@ -1,6 +1,7 @@
-#include "main.h"
+#include "shell.h"
 
-int main(void)
+
+int main(int argc, char **argv, char **environ)
 {
     size_t buf_size = 0;
     char *buf = NULL;
@@ -9,7 +10,7 @@ int main(void)
     int i = 0, status;
     pid_t child_pid;
     ssize_t num_chars = 0;
-
+	(void)argc;
     while (1)
     {
         write(1, "cisfun$ ", 9);
@@ -19,7 +20,7 @@ int main(void)
         {
             if (feof(stdin))
             {
-                printf("Shell exiting...\n");
+                _puts("Shell exiting...\n");
                 break;
             }
             else
@@ -54,8 +55,11 @@ int main(void)
         }
         if (child_pid == 0)
         {
-            if (execve(tokens[0], tokens, NULL) == -1)
-                perror("./shell ");
+            if (execve(tokens[0], tokens, environ) == -1)
+		{
+                	perror(argv[0]);
+	    		exit(1);
+		}
         }
         else
         {

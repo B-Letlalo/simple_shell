@@ -1,74 +1,89 @@
 #include "shell.h"
 
-
-int main(int argc, char **argv, char **environ)
+/**
+ * sig_handler - checks if Ctrl C is pressed
+ * @sig_num: int
+ */
+void sig_handler(int sig_num)
 {
-    size_t buf_size = 0;
-    char *buf = NULL;
-    char *token;
-    char **tokens;
-    int i = 0, status;
-    pid_t child_pid;
-    ssize_t num_chars = 0;
-	(void)argc;
-    while (1)
-    {
-        write(1, "cisfun$ ", 9);
-        num_chars = getline(&buf, &buf_size, stdin);
+	if (sig_num == SIGINT)
+	{
+		_puts("\n#cisfun$ ");
+	}
+}
 
-        if (num_chars == -1)
-        {
-            if (feof(stdin))
-            {
-                _puts("Shell exiting...\n");
-                break;
-            }
-            else
-            {
-                perror("getline error");
-                exit(1);
-            }
-        }
-
-        /*Check if the last character is a newline*/
-        if (num_chars > 0 && buf[num_chars - 1] == '\n')
-        {
-            /*Replace the newline character with null terminator*/
-            buf[num_chars - 1] = '\0';
-        }
-
-        token = strtok(buf, "\t\n ");
-        tokens = malloc(sizeof(char *) * 1024);
-
-        while (token)
-        {
-            tokens[i] = token;
-            token = strtok(NULL, "\t\n ");
-            i++;
-        }
-        tokens[i] = NULL;
-        child_pid = fork();
-        if (child_pid == -1)
-        {
-            perror("fork error");
-            return 1;
-        }
-        if (child_pid == 0)
-        {
-            if (execve(tokens[0], tokens, environ) == -1)
+/**
+* _EOF - handles the End of File
+* @len: return value of getline function
+* @buff: buffer
+ */
+void _EOF(int len, char *buff)
+{
+	(void)buff;
+	if (len == -1)
+	{
+		if (isatty(STDIN_FILENO))
 		{
-                	perror(argv[0]);
-	    		exit(1);
+			_puts("\n");
+			free(buff);
 		}
-        }
-        else
-        {
-            wait(&status);
-        }
-        i = 0;
-        free(tokens);
-    }
+		exit(0);
+	}
+}
+/**
+  * _isatty - verif if terminal
+  */
 
-    free(buf);
-    return 0;
+void _isatty(void)
+{
+	if (isatty(STDIN_FILENO))
+		_puts("#cisfun$ ");
+}
+/**
+ * main - Shell
+ * Return: 0 on success
+ */
+
+int main(void)
+{
+	ssize_t len = 0;
+	char *buff = NULL, *value, *pathname, **arv;
+	size_t size = 0;
+	list_path *head = '\0';
+	void (*f)(char **);
+
+	signal(SIGINT, sig_handler);
+	while (len != EOF)
+	{
+		_isatty();
+		len = getline(&buff, &size, stdin);
+		_EOF(len, buff);
+		arv = splitstring(buff, " \n");
+		if (!arv || !arv[0])
+			execute(arv);
+		else
+		{
+			value = _getenv("PATH");
+			head = linkpath(value);
+			pathname = _which(arv[0], head);
+			f = checkbuild(arv);
+			if (f)
+			{
+				free(buff);
+				f(arv);
+			}
+			else if (!pathname)
+				execute(arv);
+			else if (pathname)
+			{
+				free(arv[0]);
+				arv[0] = pathname;
+				execute(arv);
+			}
+		}
+	}
+	free_list(head);
+	freearv(arv);
+	free(buff);
+	return (0);
 }
